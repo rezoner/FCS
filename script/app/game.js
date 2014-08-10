@@ -29,7 +29,8 @@
           x: pos.x + app.width / 2,
           y: pos.y + app.height / 2,
           color: "#c06",
-          chasePlayer: true
+          chasePlayer: true,
+          food: true
         });
 
       }

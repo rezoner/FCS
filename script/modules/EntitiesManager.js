@@ -39,7 +39,6 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
 
     this.dirty = true;
 
-
     for (var property in entity) {
 
       var prototype = ENGINE[property + "System"];
@@ -47,6 +46,12 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
         Object.setPrototypeOf(entity[property], prototype);
       }
     }
+
+    
+    Object.defineProperty(entity, "collection", {
+      enumerable: false,
+      value: this
+    });
 
     this.callOne(entity, "create");
 

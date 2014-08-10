@@ -2410,15 +2410,12 @@ CanvasQuery.Wrapper.prototype.drawAnimation = function(key, x, y, delta, duratio
 };
 /* script/ENGINE.js */
 
-var ENTITIES = {};
-var SYSTEMS = {};
-var COMPONENTS = {};
-var ENGINE = {
+var ENTITIES = { };
 
-  entities: { },
-  systems: { }
+var COMPONENTS = { };
 
-};
+var ENGINE = { };
+
 /* script/engine/Collection.js */
 
 ENGINE.Collection = function() {
@@ -3008,8 +3005,6 @@ utils.extend(ENGINE.Entities.prototype, {
       utils.deepExtend(args, arguments[i]);
     }
 
-    console.log(args.body);
-
     var entity = args;
 
     //    entity.collection = this;
@@ -3027,7 +3022,15 @@ utils.extend(ENGINE.Entities.prototype, {
       }
     }
 
+
+    Object.defineProperty(entity, "collection", {
+      enumerable: false,
+      value: this
+    });
+
+    console.log("ASDFG", entity.collection)
     this.callOne(entity, "create");
+
 
     return entity;
   },
@@ -3602,7 +3605,6 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
 
     this.dirty = true;
 
-
     for (var property in entity) {
 
       var prototype = ENGINE[property + "System"];
@@ -3610,6 +3612,14 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
         Object.setPrototypeOf(entity[property], prototype);
       }
     }
+
+    
+    Object.defineProperty(entity, "collection", {
+      enumerable: false,
+      value: this
+    });
+
+    console.log("ASDFG", entity.collection)
 
     this.callOne(entity, "create");
 
@@ -3818,6 +3828,17 @@ COMPONENTS.velocity = {
 
 };
 
+/* script/components/food.js */
+
+COMPONENTS.food = {
+
+  collision: function(entity, collidable) {
+
+    entity.collection.remove(entity);
+  }
+
+};
+
 /* script/components/chasePlayer.js */
 
 COMPONENTS.chasePlayer = {
@@ -3920,7 +3941,8 @@ app.loader = {
           x: pos.x + app.width / 2,
           y: pos.y + app.height / 2,
           color: "#c06",
-          chasePlayer: true
+          chasePlayer: true,
+          food: true
         });
 
       }
