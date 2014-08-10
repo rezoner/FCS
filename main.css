@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'BM germar';
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/BM germar.ttf") format('truetype');
+}
+
+body {   
+  margin: 0; overflow: hidden; 
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;  
+}
