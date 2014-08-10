@@ -1,7 +1,7 @@
 Flat component system
 ===
 
-Play with [this demo](https://github.com/rezoner/FCS)
+Play with [this demo](http://rezoner.net/labs/fcs)
 
 Now compare [bubble.js](https://github.com/rezoner/FCS/blob/master/script/entities/bubble.js) which contains a bubble entity.
 
