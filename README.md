@@ -3,10 +3,10 @@ Flat component system
 
 Play with [this demo](https://github.com/rezoner/FCS)
 
-Now compare this file which contains a bubble entity 
-https://github.com/rezoner/FCS/blob/master/script/entities/bubble.js
+Now compare [bubble.js](https://github.com/rezoner/FCS/blob/master/script/entities/bubble.js) which contains a bubble entity.
 
-Versus this folder which contains everything this bubble does
-https://github.com/rezoner/FCS/tree/master/script/components
+versus 
 
+Folder [/components](https://github.com/rezoner/FCS/tree/master/script/components) which contains everything this bubble does.
 
+Don't look at other files - they are blasphemy.
