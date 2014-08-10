@@ -2940,197 +2940,6 @@ ENGINE.VideoRecorder.prototype = {
 
 };
 
-/* script/engine/Particle.js */
-
-ENGINE.Particle = function(args) {
-
-  utils.extend(this, {
-    lifespan: 1,
-    color: "#c00"
-  }, args);
-
-};
-
-ENGINE.Particle.prototype = {
-  
-  zIndex: 6,
-
-  step: function(delta) {
-
-    this.gravity += 50 * delta;
-
-    this.x += this.velocity * delta;
-    this.y += this.gravity * delta;
-
-    if ((this.lifespan -= delta) <= 0) {
-      this.collection.remove(this);
-    }
-
-  },
-
-  render: function() {
-    app.layer.fillStyle(this.color).fillRect(this.x | 0, this.y | 0, 1, 1);
-  }
-}
-
-/* script/engine/Entities.js */
-
-ENGINE.Entities = function() {
-
-  this.index = 1;
-
-  this.dirty = false;
-  this.groups = [];
-
-  this.delta = 0;
-
-  this.indexes = {};
-};
-
-ENGINE.Entities.prototype = new Array;
-
-utils.extend(ENGINE.Entities.prototype, {
-
-  remove: function(object) {
-    object._remove = true;
-    this.dirty = true;
-  },
-
-  add: function() {
-    var args = {};
-
-    //    utils.deepExtend.apply(utils, arguments);
-
-    for (var i = 0; i < arguments.length; i++) {
-      utils.deepExtend(args, arguments[i]);
-    }
-
-    var entity = args;
-
-    //    entity.collection = this;
-    entity.index = this.index++;
-
-    this.push(entity);
-
-    this.dirty = true;
-
-    for (var property in entity) {
-
-      //var prototype = COMPONENTS[property];
-      if (prototype) {
-        //Object.setPrototypeOf(entity[property], prototype);
-      }
-    }
-
-
-    Object.defineProperty(entity, "collection", {
-      enumerable: false,
-      value: this
-    });
-
-    console.log("ASDFG", entity.collection)
-    this.callOne(entity, "create");
-
-
-    return entity;
-  },
-
-  clean: function() {
-
-    for (var i = 0, len = this.length; i < len; i++) {
-      var entity = this[i];
-
-      if (entity._remove) {
-
-        this.splice(i--, 1);
-        len--;
-      }
-    }
-
-
-  },
-
-
-  /* needs to be called in order to keep track on collection's garbage */
-
-  step: function(delta) {
-
-    this.delta += delta;
-
-    if (this.dirty) {
-      this.dirty = false;
-      this.clean();
-    }
-
-    this.sort(function(a, b) {
-
-      // if (typeof a.zIndex === "undefined") console.log(a);
-      if (a.zIndex === b.zIndex) {
-        if (a.y == b.y) {
-          return a.index - b.index;
-        } else
-          return a.y - b.y;
-      }
-
-      return (a.zIndex | 0) - (b.zIndex | 0);
-    });
-
-  },
-
-  callOne: function(entity, method) {
-
-    var args = Array.prototype.slice.call(arguments, 2);
-
-    for (var property in entity) {
-
-      if (!COMPONENTS[property]) continue;
-      if (!COMPONENTS[property][method]) continue;
-
-      args.unshift(entity);
-
-      COMPONENTS[property][method].apply(COMPONENTS[property], args);
-
-    }
-
-    this.updated = true;
-
-  },
-
-  callAll: function(method) {
-
-    var args = Array.prototype.slice.call(arguments, 1);
-
-    for (var i = 0, len = this.length; i < len; i++) {
-      var entity = this[i];
-
-      for (var property in entity) {
-
-        if (!COMPONENTS[property]) continue;
-        if (!COMPONENTS[property][method]) continue;
-
-        COMPONENTS[property][method].apply(COMPONENTS[property], [entity].concat(args));
-      }
-
-    }
-
-    this.updated = true;
-
-  },
-
-  /* call some method of every entitiy
-       ex: enemies.apply("shoot", [32, 24]);
-     the difference is that it takes an array - not list of arguments
-  */
-
-  apply: function(method, args) {
-
-    for (var i = 0, len = this.length; i < len; i++) {
-      if (this[i][method]) this[i][method].apply(this[i], args);
-    }
-  }
-
-});
-
 /* script/engine/States.js */
 
 ENGINE.States = function(context) {
@@ -3613,13 +3422,11 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
       }
     }
 
-    
+
     Object.defineProperty(entity, "collection", {
       enumerable: false,
       value: this
     });
-
-    console.log("ASDFG", entity.collection)
 
     this.callOne(entity, "create");
 
@@ -3669,15 +3476,15 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
   },
 
   callOne: function(entity, method) {
-
     var args = Array.prototype.slice.call(arguments, 2);
+    
+    args.unshift(entity);
 
     for (var property in entity) {
 
       if (!COMPONENTS[property]) continue;
       if (!COMPONENTS[property][method]) continue;
 
-      args.unshift(entity);
 
       COMPONENTS[property][method].apply(COMPONENTS[property], args);
 
@@ -3804,6 +3611,47 @@ COMPONENTS.followMouse = {
 
 };
 
+/* script/components/split.js */
+
+COMPONENTS.split = {
+
+  mousedown: function(entity, event) {
+
+    for (var i = 0; i < entity.eaten; i++) {
+
+      /* clone bubble */
+
+      var bubble = utils.extend({}, entity);
+
+      /* remove ... things */
+
+      bubble.player = false;
+      bubble.radius = 4;
+      bubble.food = true;
+      bubble.chasePlayer = true;
+      delete bubble.split;
+      delete bubble.followMouse;
+
+      /* spread the bubbles around */
+
+      var angle = Math.random() * 6;
+      var pos = utils.sincos(angle, entity.radius * 1.5);
+
+      bubble.x += pos.x;
+      bubble.y += pos.y;
+
+      entity.collection.add(bubble);
+
+      COMPONENTS.forces.add(bubble, angle, 200, 200);
+    }
+
+    entity.radius -= entity.eaten;
+    entity.eaten = 0;
+
+  }
+
+};
+
 /* script/components/velocity.js */
 
 COMPONENTS.velocity = {
@@ -3833,8 +3681,13 @@ COMPONENTS.velocity = {
 COMPONENTS.food = {
 
   collision: function(entity, collidable) {
+    
+    if(collidable.player) {
+      entity.collection.remove(entity);
+      collidable.radius++;
+      collidable.eaten++;
+    }
 
-    entity.collection.remove(entity);
   }
 
 };
@@ -3915,7 +3768,7 @@ app.loader = {
     create: function() {
 
       this.entities = new ENGINE.EntitiesManager(this);
-      
+
       this.collisions = new ENGINE.CollisionsManager(this.entities);
 
       /* spawn blue bubbles */
@@ -3932,10 +3785,10 @@ app.loader = {
         });
       }
 
-      /* spawn red bubbles */      
+      /* spawn red bubbles */
 
       for (var i = 0; i < 10; i++) {
-        var pos = utils.sincos(32);
+        var pos = utils.sincos(1000);
         this.entities.add(ENTITIES.bubble, {
           radius: 4,
           x: pos.x + app.width / 2,
@@ -3954,7 +3807,9 @@ app.loader = {
         y: app.height / 2,
         color: "#c06",
         followMouse: true,
-        player: true
+        player: true,
+        eaten: 0,
+        split: true
       });
 
       this.created = true;
@@ -3978,10 +3833,12 @@ app.loader = {
     },
 
     mousedown: function(e) {
-
+      this.entities.callAll("mousedown", e);
     },
 
-    mouseup: function(e) {},
+    mouseup: function(e) {
+      this.entities.callAll("mouseup", e);
+    },
 
     mousemove: function(e) {
 

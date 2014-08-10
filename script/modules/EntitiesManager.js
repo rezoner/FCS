@@ -47,7 +47,7 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
       }
     }
 
-    
+
     Object.defineProperty(entity, "collection", {
       enumerable: false,
       value: this
@@ -101,15 +101,15 @@ utils.extend(ENGINE.EntitiesManager.prototype, {
   },
 
   callOne: function(entity, method) {
-
     var args = Array.prototype.slice.call(arguments, 2);
+    
+    args.unshift(entity);
 
     for (var property in entity) {
 
       if (!COMPONENTS[property]) continue;
       if (!COMPONENTS[property][method]) continue;
 
-      args.unshift(entity);
 
       COMPONENTS[property][method].apply(COMPONENTS[property], args);
 

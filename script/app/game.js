@@ -3,7 +3,7 @@
     create: function() {
 
       this.entities = new ENGINE.EntitiesManager(this);
-      
+
       this.collisions = new ENGINE.CollisionsManager(this.entities);
 
       /* spawn blue bubbles */
@@ -20,10 +20,10 @@
         });
       }
 
-      /* spawn red bubbles */      
+      /* spawn red bubbles */
 
       for (var i = 0; i < 10; i++) {
-        var pos = utils.sincos(32);
+        var pos = utils.sincos(1000);
         this.entities.add(ENTITIES.bubble, {
           radius: 4,
           x: pos.x + app.width / 2,
@@ -42,7 +42,9 @@
         y: app.height / 2,
         color: "#c06",
         followMouse: true,
-        player: true
+        player: true,
+        eaten: 0,
+        split: true
       });
 
       this.created = true;
@@ -66,10 +68,12 @@
     },
 
     mousedown: function(e) {
-
+      this.entities.callAll("mousedown", e);
     },
 
-    mouseup: function(e) {},
+    mouseup: function(e) {
+      this.entities.callAll("mouseup", e);
+    },
 
     mousemove: function(e) {
 
